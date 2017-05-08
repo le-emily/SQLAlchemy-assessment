@@ -1,15 +1,10 @@
-"""Models and database functions for cars db."""
+"""Models and database functions for cars database."""
 
 from flask_sqlalchemy import SQLAlchemy
 
-# Here's where we create the idea of our database. We're getting this through
-# the Flask-SQLAlchemy library. On db, we can find the `session`
-# object, where we do most of our interactions (like committing, etc.)
-
 db = SQLAlchemy()
 
-
-##############################################################################
+# -------------------------------------------------------------------
 # Part 1: Compose ORM
 
 class Brand(db.Model):
@@ -19,39 +14,41 @@ class Brand(db.Model):
 
     brand_id = db.Column(db.String(5), primary_key=True)
     name = db.Column(db.String(50), nullable=False)
-    founded = db.Column(db.Integer)
-    heaquartrs = db.Column(db.String(50))
-    discontinued = db.Column(db.Integers)
+    founded = db.Column(db.Integer, nullable=True)
+    headquarters = db.Column(db.String(50), nullable=True)
+    discontinued = db.Column(db.Integer, nullable=True)
 
     def __repr__(self):
-        """Provide helpful representation when printed."""
+        """Provide useful output when printing."""
 
-        return "<Brand brand_id={} Brand Name name={}>".format(self.brand_id, self.name)
+        return "<Brand {name} brand_id={b_id}>".format(name=self.name,
+                                                       b_id=self.brand_id)
+
 
 class Model(db.Model):
     """Car model."""
 
     __tablename__ = "models"
 
-    model_id = db.Column(db.String, autoincrement=True, primary_key=True)
+    model_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     year = db.Column(db.Integer, nullable=False)
     brand_id = db.Column(db.String(5), db.ForeignKey('brands.brand_id'),
                          nullable=False)
     name = db.Column(db.String(50), nullable=False)
 
-    # must have relationship if foreign key--className, backref=table name
     brand = db.relationship("Brand", backref="models")
 
     def __repr__(self):
-        """Provide helpful representation when printed."""
+        """Provide useful output when printing."""
 
-        return "<Model mdoel_id=() Model Name name=()>".format(self.model_id, self.name)
+        return "<Model {yr} {name} model_id={m_id}>".format(yr=self.year,
+                                                            name=self.name,
+                                                            m_id=self.model_id)
 
-# End Part 1
-
-
-##############################################################################
+# End part 1
+# -------------------------------------------------------------------
 # Helper functions
+
 
 def init_app():
     # So that we can use Flask-SQLAlchemy, we'll make a Flask app.

@@ -45,30 +45,28 @@ init_app()
 q1 = Brand.query.get("ram")
 
 # Get all models with the name ``Corvette`` and the brand_id ``che``.
-# ALL models, use .all()
-# q2 = Model.query.filter(Model.name="Corvette", Model.brand_id="che").all()
+q2 = Model.query.filter_by(name='Corvette', brand_id='che').all()
 
 # Get all models that are older than 1960.
-q3 = Model.query.filter(Model.year > 1960).all()
+q3 = Model.query.filter(Model.year < 1960).all()
 
 # Get all brands that were founded after 1920.
 q4 = Brand.query.filter(Brand.founded > 1920).all()
 
 # Get all models with names that begin with ``Cor``.
-q5 = Model.query.filter(Model.name.like("Cor%")).all()
+q5 = Model.query.filter(Model.name.like('Cor%')).all()
 
 # Get all brands that were founded in 1903 and that are not yet discontinued.
-# Checking if something IS something, use is_
-q6 = Brand.query.filter(Brand.founded==1902, Brand.discontinued.is_(None)).all()
+q6 = (Brand.query.filter(Brand.founded == 1903,
+                         Brand.discontinued.is_(None)).all())
 
 # Get all brands that are either 1) discontinued (at any time) or 2) founded
 # before 1950.
-# to use OR, db.or_
-q7 = Brand.query.filter(db.or_(Brand.discontinued.isnot(None), Brand.founded < 1950).all())
+q7 = (Brand.query.filter(db.or_(Brand.discontinued.isnot(None),
+                                Brand.founded < 1950)).all())
 
 # Get all models whose brand_id is not ``for``.
-q8 = Model.query.get(Model.brand_id != "for").all()
-
+q8 = Model.query.filter(Model.brand_id != 'for').all()
 
 
 # -------------------------------------------------------------------
@@ -80,11 +78,11 @@ def get_model_info(year):
     headquarters for that year using only ONE database query."""
 
     # write a query to get the year of all models
-    models = Model.query.filter(Model.year=year).all()
+    models = Model.query.filter_by(year=year).all()
 
     if models:
         for model in models:
-            print "{brand}, {model}, {hq}".format(brand=model.brand.name, model=model.name, hq=model.brand.headquarters)
+            print "{} {} {}".format(model.brand.name, model.name, model.brand.headquarters)
     else:
         print "Nothing in this database!"
 
@@ -94,13 +92,13 @@ def get_brands_summary():
     including their year, using only ONE database query."""
 
     # write a query to get brand info
-    brands = (Brand.query.filter(Brand.name=name)).all()
+    brands = Brand.query.all()
 
     for brand in brands:
-        print "{] {} {}".format(brand.name, brand.model.name, brand.year)
+        print "{}".format(brand.name)
         if brand.models:
             for model in brand.models:
-                print "  {} {}".format(model.year, model.name)
+                print "{} {}".format(model.year, model.name)
         else:
             print "Nothing in database!"
 
@@ -108,7 +106,7 @@ def search_brands_by_name(mystr):
     """Returns all Brand objects corresponding to brands whose names include
     the given string."""
 
-    brands = Brand.query.filter(Brand.name.ilike('%'+mystr+'%')).all()
+    brands = Brand.query.filter(Brand.name.like('%'+mystr+'%')).all()
     return brands
 
 
@@ -117,5 +115,5 @@ def get_models_between(start_year, end_year):
     """Returns all Model objects corresponding to models made between
     start_year (inclusive) and end_year (exclusive)."""
 
-    models = Models.query.filter(Model.year >= start_year, Model.year < end_year).all()
+    models = (Model.query.filter(Model.year >= start_year, Model.year < end_year).all())
     return models
